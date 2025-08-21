@@ -1,0 +1,16 @@
+[package]
+name = "bevy-equirect"
+version = "0.1.0"
+edition = "2024"
+
+[dev-dependencies]
+bevy = "0.16"
+bevy_flycam = "0.16.1"
+
+[dependencies]
+bevy_app = { version = "0.16.1", default-features = false }
+bevy_asset = { version = "0.16.1", default-features = false }
+bevy_ecs = { version = "0.16.1", default-features = false }
+bevy_image = { version = "0.16.1", default-features = false }
+glam = { version = "0.29", default-features = false }
+wgpu-types = { version = "24.0.0", default-features = false }
