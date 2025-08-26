@@ -33,11 +33,14 @@ fn apply_equirect(
 ) {
     for event in reader.read() {
         if let AssetEvent::Added { id } = event
-            && let Some(cubemap) = manager.temp_handles.remove(id)
+            && let Some(cubemap) = manager.handles.get(id)
         {
             let image = images.get(&cubemap.src).unwrap();
             let image = cubemap_from_equirectangular(image, cubemap.res);
             images.insert(&cubemap.dst, image);
+        }
+        if let AssetEvent::Unused { id } | AssetEvent::Removed { id } = event {
+            manager.handles.remove(id);
         }
     }
 }
@@ -46,7 +49,7 @@ fn apply_equirect(
 pub struct EquirectManager {
     asset_server: AssetServer,
     image_handle_provider: AssetHandleProvider,
-    temp_handles: HashMap<AssetId<Image>, EquirectCubemap>,
+    handles: HashMap<AssetId<Image>, EquirectCubemap>,
 }
 struct EquirectCubemap {
     src: Handle<Image>,
@@ -60,16 +63,16 @@ impl EquirectManager {
         res: u32,
     ) -> Handle<Image> {
         let src = self.asset_server.load(path);
-        let dst = self.image_handle_provider.reserve_handle().typed::<Image>();
-        self.temp_handles.insert(
-            src.id(),
-            EquirectCubemap {
+
+        self.handles
+            .entry(src.id())
+            .or_insert_with(|| EquirectCubemap {
                 src,
-                dst: dst.clone(),
+                dst: self.image_handle_provider.reserve_handle().typed::<Image>(),
                 res,
-            },
-        );
-        dst
+            })
+            .dst
+            .clone()
     }
 }
 impl FromWorld for EquirectManager {
@@ -79,7 +82,7 @@ impl FromWorld for EquirectManager {
         Self {
             asset_server,
             image_handle_provider,
-            temp_handles: HashMap::new(),
+            handles: HashMap::new(),
         }
     }
 }
