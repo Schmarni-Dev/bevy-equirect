@@ -56,10 +56,10 @@ impl CubeSide {
         match self {
             CubeSide::X => 0,
             CubeSide::NegX => 1,
-            CubeSide::NegY => 2,
-            CubeSide::Y => 3,
-            CubeSide::Z => 5,
-            CubeSide::NegZ => 4,
+            CubeSide::Y => 2,
+            CubeSide::NegY => 3,
+            CubeSide::Z => 4,
+            CubeSide::NegZ => 5,
         }
     }
     pub fn get_angles_from_xyz(&self, pos: Vec3) -> Vec2 {
@@ -69,18 +69,18 @@ impl CubeSide {
         Vec2::new(phi, theta)
     }
     pub fn get_uv_from_angles(&self, angles: Vec2) -> Vec2 {
-        Vec2::new(angles.y / (2.0 * PI) + 0.5, angles.x / PI + 0.5)
+        Vec2::new(angles.y / (2.0 * PI) + 0.5, 1.0 - (angles.x / PI + 0.5))
     }
     pub fn get_xyz_form_pixel_coords(&self, pixel_x: u32, pixel_y: u32, res: u32) -> Vec3 {
         let offset_x = ((pixel_x as f32 / (res - 1) as f32) * 2.0) - 1.0;
         let offset_y = ((pixel_y as f32 / (res - 1) as f32) * 2.0) - 1.0;
         match self {
-            CubeSide::X => vec3(1.0, offset_y, offset_x),
-            CubeSide::NegX => vec3(-1.0, offset_y, -offset_x),
+            CubeSide::X => vec3(1.0, -offset_y, -offset_x),
+            CubeSide::NegX => vec3(-1.0, -offset_y, offset_x),
             CubeSide::Y => vec3(offset_x, 1.0, offset_y),
-            CubeSide::NegY => vec3(offset_x, -1.0, offset_y),
-            CubeSide::Z => vec3(offset_x, offset_y, 1.0),
-            CubeSide::NegZ => vec3(-offset_x, offset_y, -1.0),
+            CubeSide::NegY => vec3(offset_x, -1.0, -offset_y),
+            CubeSide::Z => vec3(offset_x, -offset_y, 1.0),
+            CubeSide::NegZ => vec3(-offset_x, -offset_y, -1.0),
         }
     }
 }
